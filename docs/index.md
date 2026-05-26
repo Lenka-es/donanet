@@ -1,5 +1,7 @@
 # DonaNet Documentation
 
+![WildINTEL](img/wildIntel_logo.webp){ style="display: block; margin: 0 auto;" }
+
 Welcome to the DonaNet documentation.
 
 **DonaNet** is a neural network designed to detect and classify the mammals that inhabit
@@ -8,8 +10,6 @@ Welcome to the DonaNet documentation.
 This project provides the **pre-trained weights** of a [YOLO](https://docs.ultralytics.com/) network
 specifically adapted to Doñana, as well as the **`donanet.py`** CLI, which allows you to retrain
 the network with new image datasets.
-
-![WildINTEL](img/wildIntel_logo.webp)
 
 ---
 

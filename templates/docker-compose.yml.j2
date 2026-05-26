@@ -1,0 +1,26 @@
+name: donanet-{{ config.profile_name }}
+
+services:
+  donanet:
+    build:
+      context: {{ project_dir }}
+      dockerfile: Dockerfile
+    image: donanet-{{ config.profile_name }}
+    restart: "no"
+    working_dir: /app
+    volumes:
+      - ${DATASET_PATH}:/app/dataset:rw
+      - ${WEIGHTS_PATH}:/app/weights:rw
+      - ${RUNS_PATH}:/app/runs:rw
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=${TZ}
+    env_file: .env
+    deploy:
+      resources:
+        limits:
+          memory: ${MEM_LIMIT}
+          cpus: "${CPU_LIMIT}"
+        reservations:
+          memory: "2048M"
+          cpus: "1.0"

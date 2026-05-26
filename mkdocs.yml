@@ -1,0 +1,13 @@
+site_name: DonaNet
+site_description: WildINTEL YOLO training, evaluation and inference CLI
+theme:
+  name: material
+  logo: img/WildINTEL_onlyCircle_25.png
+  favicon: img/WildINTEL_onlyCircle_25.png
+
+nav:
+  - Home: index.md
+  - DonaNet Model: donanet-model.md
+  - Installation Guide: installation-guide.md
+  - User Guide: user-guide.md
+  - Administrator Guide: admin-guide.md

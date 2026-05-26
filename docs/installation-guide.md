@@ -2,93 +2,166 @@
 
 ## Prerequisites
 
-- Python 3.11 or later (3.12 / 3.13 work too)
-- [uv](https://docs.astral.sh/uv/) *(recommended)* — or plain `pip`
+- Git
 - A CUDA-capable GPU is **strongly recommended** for training; CPU-only inference works
-- `libGL` system library (required by OpenCV, which Ultralytics depends on)
-
-```bash
-# Fedora / RHEL
-sudo dnf install mesa-libGL
-
-# Debian / Ubuntu
-sudo apt-get install libgl1
-```
 
 ---
 
-## 1. Clone and Enter the Project
+## 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/wildintelproject/donanet.git
 cd donanet
 ```
 
----
-
-## 2. Install Python Dependencies
-
-### With uv (recommended)
-
-```bash
-uv sync
-```
-
-### With pip
-
-```bash
-pip install -e .
-```
+After cloning, choose one of the two available installation methods:
 
 ---
 
-## 3. Verify the CLI
+## Option A — uv (local environment)
+
+This option runs DonaNet directly on your machine using a Python virtual environment managed by
+[uv](https://docs.astral.sh/uv/).
+
+### Run the setup script
+
+The provided `setup.sh` script handles everything: it installs `uv` automatically if it is not
+already present, creates the virtual environment and installs all required dependencies.
+
+```bash
+./setup.sh
+```
+
+### Activate the virtual environment
+
+After setup, activate the virtual environment to access the `donanet` CLI:
+
+```bash
+source .venv/bin/activate
+```
+
+### Run DonaNet
+
+With the environment activated, you can now run DonaNet commands. For example, to see the help
 
 ```bash
 python donanet.py --help
 ```
 
-Expected output:
+---
+
+## Option B — Docker (containerised environment)
+
+This option runs DonaNet inside a Docker container based on
+[`ultralytics/ultralytics`](https://hub.docker.com/r/ultralytics/ultralytics), which already
+bundles PyTorch, CUDA and Ultralytics — no local GPU drivers or Python packages are required
+beyond Docker itself.
+
+The `configure.py` wizard generates a fully self-contained profile with a Docker Compose stack
+and a set of ready-to-use helper scripts.
+
+### Step 1 — Prepare the environment
+
+The wizard depends on a small set of Python packages. Run setup first and activate the environment:
+
+```bash
+./setup.sh
+source .venv/bin/activate
+```
+
+### Step 2 — Run the configuration wizard
+
+```bash
+python configure.py interactive
+```
+
+The wizard will guide you through the following sections:
+
+#### Profile name
+A profile is an independent, self-contained deployment. You can create multiple profiles
+(e.g. `cpu-dev`, `gpu-production`) and switch between them freely. Each profile is stored
+under `./profiles/<name>/`.
+
+#### Timezone
+Auto-detected from your system. Used to set the container's timezone correctly.
+
+#### Storage paths
+The three directories that are mounted as volumes inside the container:
+
+| Host path   | Mounted at      | Purpose                                    |
+|-------------|-----------------|--------------------------------------------|
+| `./dataset` | `/app/dataset`  | Training images and YOLO labels            |
+| `./weights` | `/app/weights`  | Model weight files (`best.pt`, `last.pt`)  |
+| `./runs`    | `/app/runs`     | Ultralytics training artefacts and metrics |
+
+Paths that do not yet exist are created automatically.
+
+#### GPU support
+Enables NVIDIA GPU acceleration via the
+[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html).
+When enabled, an additional `docker-compose.gpu.yml` overlay is generated.
+Disable this option to run in CPU-only mode.
+
+#### Resource limits
+Sets the memory (RAM) and CPU core limits for the container. The wizard detects your system
+resources and proposes sensible defaults (75 % of available RAM and CPU cores).
+
+### Step 3 — What gets generated
+
+All files are written to `./profiles/<profile-name>/`:
 
 ```
- Usage: donanet.py [OPTIONS] COMMAND [ARGS]...
+profiles/
+└── <profile-name>/
+    ├── .env                   ← environment variables (paths, timezone, resource limits)
+    ├── docker-compose.yml     ← main Compose file
+    ├── docker-compose.gpu.yml ← GPU overlay (only when GPU is enabled)
+    ├── build.sh               ← builds the Docker image
+    ├── train.sh               ← runs a training job
+    ├── test.sh                ← runs inference / evaluation
+    ├── prepare.sh             ← splits a raw dataset into train / val / test
+    ├── info.sh                ← shows available weights and dataset summary
+    ├── exec.sh                ← opens a shell (or runs a command) inside the container
+    └── ps.sh                  ← lists running containers for this profile
+```
 
- DonaNet — WildINTEL YOLO training & inference CLI
+### Helper scripts reference
 
-╭─ Commands ──────────────────────────────────────────────────────────────────╮
-│ prepare-dataset  Split raw images + labels into train / val / test.         │
-│ train            Train a YOLO model on the dataset.                         │
-│ test             Run inference or evaluation on the test partition.          │
-│ list-datasets    Show dataset partitions and image counts.                  │
-│ info             Display available weights and dataset summary.              │
-╰─────────────────────────────────────────────────────────────────────────────╯
+| Script       | Purpose                                                | Example                                                                |
+|--------------|--------------------------------------------------------|------------------------------------------------------------------------|
+| `build.sh`   | Builds (or rebuilds) the Docker image for this profile | `./build.sh`                                                           |
+| `train.sh`   | Launches a training run inside the container           | `./train.sh --model yolov8n.pt --epochs 100 --name my_run`             |
+| `test.sh`    | Runs inference or evaluation on the test partition     | `./test.sh --weights weights/my_run/best.pt --conf 0.25`               |
+| `prepare.sh` | Splits raw images + labels into `train / val / test`   | `./prepare.sh --source /path/to/raw --train 0.7 --val 0.2 --test 0.1` |
+| `info.sh`    | Displays available weights and dataset statistics      | `./info.sh`                                                            |
+| `exec.sh`    | Opens a bash shell inside the container for debugging  | `./exec.sh`                                                            |
+| `ps.sh`      | Shows the status of the containers in this profile     | `./ps.sh`                                                              |
+
+### Step 4 — Build and run
+
+```bash
+# Build the Docker image
+./profiles/<profile-name>/build.sh
+
+# Train
+./profiles/<profile-name>/train.sh --model yolov8n.pt --epochs 100 --name my_run
+
+# Inference
+./profiles/<profile-name>/test.sh --weights weights/my_run/best.pt
 ```
 
 ---
 
-## 4. GPU Setup (optional but recommended)
-
-Ultralytics automatically uses the first available CUDA device.
-To force CPU:
-
-```bash
-python donanet.py train --device cpu ...
-```
-
-To use a specific GPU:
-
-```bash
-python donanet.py train --device 0 ...
-```
-
----
-
-## 5. Directory Layout After Installation
+## Directory Layout
 
 ```
 donanet/
 ├── donanet.py          ← CLI entry point
+├── configure.py        ← Docker configuration wizard
+├── setup.sh            ← environment setup script
+├── Dockerfile
 ├── pyproject.toml
+├── profiles/           ← generated Docker profiles (one directory per profile)
 ├── dataset/
 │   ├── train/images/
 │   ├── train/labels/

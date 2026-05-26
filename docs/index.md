@@ -1,9 +1,13 @@
-# DonaNet Documentation
+    # DonaNet Documentation
 
 Welcome to the DonaNet documentation.
 
-DonaNet provides a CLI (`donanet.py`) that drives Ultralytics YOLO for the full
-training → evaluation → inference lifecycle on wildlife imagery.
+**DonaNet** is a neural network designed to detect and classify the mammals that inhabit
+[Doñana National Park](https://www.miteco.gob.es/es/red-parques-nacionales/nuestros-parques/donana/) (Spain).
+
+This project provides the **pre-trained weights** of a [YOLO](https://docs.ultralytics.com/) network
+specifically adapted to Doñana, as well as the **`donanet.py`** CLI, which allows you to retrain
+the network with new image datasets.
 
 ![WildINTEL](img/wildIntel_logo.webp)
 
@@ -11,6 +15,7 @@ training → evaluation → inference lifecycle on wildlife imagery.
 
 ## Documentation Map
 
+- [DonaNet Model](donanet-model.md)
 - [Installation Guide](installation-guide.md)
 - [User Guide](user-guide.md)
 - [Administrator Guide](admin-guide.md)

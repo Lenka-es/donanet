@@ -1,0 +1,115 @@
+name: 📚 Documentation
+
+on:
+  push:
+    branches:
+      - main          # Despliega como "latest" en cada push a main
+    tags:
+      - "v*.*.*"      # Despliega con número de versión en cada tag semver
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión a publicar (ej: 1.2.0). Si está vacío usa el tag o 'dev'."
+        required: false
+        default: ""
+      alias:
+        description: "Alias para esta versión (ej: latest, stable)"
+        required: false
+        default: ""
+      set_default:
+        description: "¿Establecer como versión por defecto?"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # mike necesita push a gh-pages
+
+jobs:
+  deploy-docs:
+    name: Build & Deploy Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout con historial completo (necesario para mike) ──────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # mike necesita todo el historial y la rama gh-pages
+
+      # ── 2. Setup Python + uv ──────────────────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      # ── 3. Instalar dependencias de documentación ─────────────────────────
+      - name: Install doc dependencies
+        run: |
+          uv pip install --system \
+            mkdocs-material \
+            mike
+
+      # ── 4. Configurar git (mike hace commits en gh-pages) ─────────────────
+      - name: Configure git
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # ── 5. Determinar la versión a publicar ───────────────────────────────
+      - name: Resolve version and alias
+        id: version
+        run: |
+          # Prioridad: input manual → tag de git → "dev"
+          if [[ -n "${{ github.event.inputs.version }}" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            # Elimina el prefijo 'v' del tag (v1.2.3 → 1.2.3)
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION="dev"
+          fi
+
+          # Alias: input manual → "latest" para tags, ninguno para dev
+          if [[ -n "${{ github.event.inputs.alias }}" ]]; then
+            ALIAS="${{ github.event.inputs.alias }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            ALIAS="latest"
+          else
+            ALIAS=""
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "alias=$ALIAS"     >> "$GITHUB_OUTPUT"
+          echo "📦 Version: $VERSION  |  Alias: ${ALIAS:-<none>}"
+
+      # ── 6. Publicar con mike ──────────────────────────────────────────────
+      - name: Deploy docs (versioned)
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          ALIAS="${{ steps.version.outputs.alias }}"
+          SET_DEFAULT="${{ github.event.inputs.set_default }}"
+
+          MIKE_ARGS="--push --update-aliases"
+
+          # Añadir alias si existe
+          if [[ -n "$ALIAS" ]]; then
+            mike deploy $MIKE_ARGS "$VERSION" "$ALIAS"
+          else
+            mike deploy $MIKE_ARGS "$VERSION"
+          fi
+
+          # Establecer versión por defecto si se solicitó o es un tag nuevo
+          if [[ "$SET_DEFAULT" == "true" ]] || \
+             ([[ "${{ github.ref }}" == refs/tags/* ]] && [[ -n "$ALIAS" ]]); then
+            mike set-default --push "$ALIAS"
+            echo "✅ Versión por defecto → $ALIAS ($VERSION)"
+          fi
+
+      # ── 7. Listar versiones publicadas ────────────────────────────────────
+      - name: List published versions
+        run: mike list

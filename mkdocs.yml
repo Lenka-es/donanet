@@ -1,9 +1,21 @@
 site_name: DonaNet
 site_description: WildINTEL YOLO training, evaluation and inference CLI
+site_url: https://ijfviana.github.io/donanet/
+
 theme:
   name: material
   logo: img/WildINTEL_onlyCircle_25.png
   favicon: img/WildINTEL_onlyCircle_25.png
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+
+# ── Versionado con mike ───────────────────────────────────────────────────────
+extra:
+  version:
+    provider: mike
+    default: latest        # versión que se carga por defecto
 
 nav:
   - Home: index.md

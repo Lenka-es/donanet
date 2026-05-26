@@ -3,6 +3,9 @@ site_description: Neural network to detect and classify mammals in Doñana Natio
 site_url: https://wildintelproject.github.io/donanet/
 copyright: Copyright &copy; 2026 <a href="https://wildintel.eu/">WildINTEL</a>
 
+repo_url: https://github.com/wildintelproject/donanet
+repo_name: wildintelproject/donanet
+
 theme:
   name: material
   language: en
@@ -54,6 +57,8 @@ extra_css:
   - stylesheets/extras.css
 
 markdown_extensions:
+  - toc:
+      title: On this page
   - admonition
   - pymdownx.details
   - pymdownx.highlight:

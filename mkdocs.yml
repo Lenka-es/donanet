@@ -1,6 +1,6 @@
 site_name: DonaNet
 site_description: WildINTEL YOLO training, evaluation and inference CLI
-site_url: https://ijfviana.github.io/donanet/
+site_url: https://wildintelproject.github.io/donanet/
 
 theme:
   name: material

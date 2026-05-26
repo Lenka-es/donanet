@@ -1,4 +1,4 @@
-    # DonaNet Documentation
+# DonaNet Documentation
 
 Welcome to the DonaNet documentation.
 

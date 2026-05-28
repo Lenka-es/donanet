@@ -13,7 +13,7 @@
 ## Neural network for detecting and classifying mammals in Doñana National Park
 
 **DonaNet** is a neural network designed to detect and classify the mammals that inhabit
-[Doñana National Park](https://www.miteco.gob.es/es/red-parques-nacionales/nuestros-parques/donana/) (Spain).
+[Doñana National Park](https://www.miteco.gob.es/es/red-parques-nacionales/nuestros-parques/donana/) (Spain)**,  located in the Mediterranean biogeographical region, within the WildINTEL project, funded by Biodiversa+**. 
 
 This repository contains the **weights file** produced by a training process of a
 [YOLO](https://docs.ultralytics.com/) network specifically adapted to Doñana National Park.

@@ -22,6 +22,17 @@ The dataset used during this training process is available at XXXXX.
 The repository also includes the **`donanet.py`** application, which allows retraining this network
 with new image datasets.
 
+## 📚 Documentation
+
+Full documentation — installation guide, user guide and administrator guide — is available under
+the `docs/:
+
+- Installation guide: `docs/installation-guide.md`
+- User guide: `docs/user-guide.md`
+- Administrator guide: `docs/admin-guide.md`
+
+You can also access the online documentation at https://wildintelproject.github.io/donanet
+
 ## 🚀 Features
 
 - Interactive CLI powered by [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthedocs.io/)
@@ -134,15 +145,6 @@ python donanet.py info
 
 ---
 
-## 📚 Documentation
-
-Full documentation — installation guide, user guide and administrator guide — is available under
-the `docs/` directory:
-
-- Installation guide: `docs/installation-guide.md`
-- User guide: `docs/user-guide.md`
-- Administrator guide: `docs/admin-guide.md`
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -161,3 +163,5 @@ transnational monitoring of biodiversity and ecosystem change for science and so
 European co-funded biodiversity partnership supporting excellent research on biodiversity with an impact for policy and
 society. Biodiversa+ is part of the European Biodiversity Strategy for 2030 that aims to put Europe's biodiversity on a
 path to recovery by 2030 and is co-funded by the European Commission.
+
+**WildINTEL has been co-funded by the [European Commission](https://commission.europa.eu/) (GA No. 101052342) and the following funding organisations: [Agencia Estatal de Investigación](https://www.aei.gob.es/) (Spain, PCI2023-145963-2, PCI2024-153489), [National Science Centre](https://www.ncn.gov.pl/?language=en) (Poland, UMO-2023/05/Y/NZ8/00104), the [Research Council of Norway](https://www.forskningsradet.no/en/) (Norway, NFR350962) and the [German Research Foundation](https://www.dfg.de/en/) (Germany).**
